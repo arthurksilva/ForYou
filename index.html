@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>O interior do meu coração</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background: linear-gradient(135deg, #fff0f6 0%, #ffd6e8 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  #heart-container {
+    position: relative;
+    width: 180px;
+    height: 160px;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* The left half of the heart */
+  .heart-left {
+    transform-origin: center right;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
+  }
+
+  /* The right half of the heart */
+  .heart-right {
+    transform-origin: center left;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
+  }
+
+  /* Word container */
+  #word {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+    font-size: 2.3rem;
+    color: #e91e63; /* Pink color */
+    user-select: none;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease 0.2s;
+  }
+
+  /* When active (heart split) */
+  #heart-container.active .heart-left {
+    transform: translateX(-50%) rotate(-15deg);
+    opacity: 1;
+  }
+
+  #heart-container.active .heart-right {
+    transform: translateX(50%) rotate(15deg);
+    opacity: 1;
+  }
+
+  #heart-container.active #word {
+    opacity: 1;
+  }
+
+  /* Hover effect */
+  #heart-container:hover .heart-left,
+  #heart-container:hover .heart-right {
+    filter: drop-shadow(0 0 5px #f48fb1); /* pinkish glow */
+  }
+
+  /* Focus style for accessibility */
+  #heart-container:focus {
+    outline: 3px solid #f48fb1;
+    outline-offset: 6px;
+  }
+
+  /* Confetti container */
+  #confetti-container {
+    pointer-events: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: visible;
+    z-index: 5;
+  }
+
+  /* Confetti pieces */
+  .confetti {
+    position: absolute;
+    width: 8px;
+    height: 14px;
+    background-color: red;
+    opacity: 0.9;
+    border-radius: 2px;
+    will-change: transform, opacity;
+    animation: confetti-fall linear forwards;
+  }
+
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 480px){
+    #heart-container {
+      width: 140px;
+      height: 125px;
+    }
+    #word {
+      font-size: 1.8rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div id="heart-container" role="button" tabindex="0" aria-pressed="false" aria-label="Coração interativo. Clique para dividir e mostrar a palavra.">
+    <svg viewBox="0 0 64 58" aria-hidden="true" focusable="false">
+      <!-- Left half -->
+      <path class="heart-left" fill="#e91e63"
+        d="M32 58s-4-3.64-8.75-7.87c-4.78-4.37-11.47-11.18-11.47-20.21 0-6.22 5.04-11.26 11.26-11.26 4.05 0 6.5 2.03 8.96 5.46 2.46-3.43 4.91-5.46 8.96-5.46 6.21 0 11.26 5.04 11.26 11.26 0 9.03-6.69 15.83-11.47 20.21C36 54.36 32 58 32 58z"
+        style="clip-path: inset(0 50% 0 0);"
+      />
+      <!-- Right half -->
+      <path class="heart-right" fill="#e91e63"
+        d="M32 58s4-3.64 8.75-7.87c4.78-4.37 11.47-11.18 11.47-20.21 0-6.22-5.04-11.26-11.26-11.26-4.05 0-6.5 2.03-8.96 5.46-2.46-3.43-4.91-5.46-8.96-5.46-6.21 0-11.26 5.04-11.26 11.26 0 9.03 6.69 15.83 11.47 20.21C28 54.36 32 58 32 58z"
+        style="clip-path: inset(0 0 0 50%);"
+      />
+    </svg>
+    <div id="word">tamm</div>
+  </div>
+
+  <div id="confetti-container" aria-hidden="true"></div>
+
+<script>
+  (function(){
+    const heartContainer = document.getElementById('heart-container');
+    const confettiContainer = document.getElementById('confetti-container');
+
+    function randomBetween(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function createConfettiPiece() {
+      const confetti = document.createElement('div');
+      confetti.classList.add('confetti');
+      const colors = ['#e91e63', '#f48fb1', '#f06292', '#ce93d8', '#f8bbd0'];
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      
+      // Start position (random x along viewport width)
+      confetti.style.left = Math.floor(Math.random() * window.innerWidth) + 'px';
+      confetti.style.top = '-20px';
+      // Animation duration between 2 and 4 seconds
+      confetti.style.animationDuration = randomBetween(2, 4) + 's';
+      // Random rotation speed by setting different animation delay
+      confetti.style.animationDelay = randomBetween(0, 1) + 's';
+
+      return confetti;
+    }
+
+    function launchConfetti() {
+      const count = 60; // Number of confetti pieces
+      for (let i=0; i < count; i++) {
+        const confetti = createConfettiPiece();
+        confettiContainer.appendChild(confetti);
+
+        // Remove after animation ends
+        confetti.addEventListener('animationend', () => {
+          confetti.remove();
+        });
+      }
+    }
+
+    function toggleActive() {
+      const active = heartContainer.classList.toggle('active');
+      heartContainer.setAttribute('aria-pressed', active);
+      if(active){
+        launchConfetti();
+      }
+    }
+
+    heartContainer.addEventListener('click', toggleActive);
+
+    heartContainer.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        toggleActive();
+      }
+    });
+  })();
+</script>
+</body>
+</html>
+
